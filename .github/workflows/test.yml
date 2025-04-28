@@ -2,7 +2,7 @@ name: Test Nav2_System_Tests
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
     branches:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Setup ROS2 environment
         uses: ros-tooling/setup-ros@v0.7
         with:
@@ -32,10 +32,10 @@ jobs:
             python3-vcstool \
             python3-colcon-common-extensions
 
-      - name: Clone Navigation2 System Tests
+      - name: Import Navigation2 Minimal Packages
         run: |
-          cd FollowBotAROS2/src
-          git clone --branch main --depth 1 https://github.com/ros-planning/navigation2.git
+          cd FollowBotAROS2
+          vcs import src < navigation2_minimal.repos
         shell: bash
 
       - name: Install ROS 2 Package Dependencies
@@ -49,11 +49,11 @@ jobs:
       - name: Build Workspace (Project + Nav2 System Tests)
         run: |
           source /opt/ros/jazzy/setup.bash
-          colcon build --symlink-install   --packages-select nav2_system_tests nav2_common nav2_util
+          colcon build --symlink-install --packages-up-to nav2_system_tests
         working-directory: FollowBotAROS2
         shell: bash
 
-      - name: Test Workspace (Project + Nav2 System Tests)
+      - name: Test Workspace (Nav2 System Tests)
         run: |
           source /opt/ros/jazzy/setup.bash
           colcon test --packages-select nav2_system_tests
