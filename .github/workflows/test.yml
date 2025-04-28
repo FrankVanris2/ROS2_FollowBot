@@ -58,7 +58,6 @@ jobs:
         run: |
           source /opt/ros/jazzy/setup.bash
           colcon test --packages-select nav2_system_tests
-          colcon test --packages-select YOUR_PACKAGE_NAME  # Replace this!
           colcon test-result --verbose
         working-directory: FollowBotAROS2
         shell: bash
