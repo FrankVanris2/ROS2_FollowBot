@@ -49,7 +49,7 @@ jobs:
       - name: Build Workspace (Project + Nav2 System Tests)
         run: |
           source /opt/ros/jazzy/setup.bash
-          colcon build --symlink-install  --packages-skip opennav_docking
+          colcon build --symlink-install   --packages-select nav2_system_tests nav2_common nav2_util
         working-directory: FollowBotAROS2
         shell: bash
 
