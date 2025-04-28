@@ -1,4 +1,4 @@
-name: ROS2 Jazzy CI (with Container)
+name: Test Nav2_System_Tests
 
 on:
   push:
@@ -35,8 +35,7 @@ jobs:
       - name: Clone Navigation2 System Tests
         run: |
           cd FollowBotAROS2/src
-          git clone --branch main https://github.com/ros-planning/navigation2.git
-          vcs import < navigation2/tools/ros2-navigation2.repos
+          git clone --branch main --depth 1 https://github.com/ros-planning/navigation2.git
         shell: bash
 
       - name: Install ROS 2 Package Dependencies
