@@ -1,0 +1,53 @@
+name: ROS2 Jazzy CI (with Container)
+
+on:
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:noble
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup ROS2 environment
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Update and Install Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            nlohmann-json3-dev \
+            libgeographiclib-dev \
+            libserial-dev
+
+      - name: Build workspace
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --symlink-install
+        working-directory: FollowBotAROS2
+        shell: bash
+
+      - name: Test workspace
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon test
+          colcon test-result --verbose
+        working-directory: FollowBotAROS2
+        shell: bash
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: FollowBotAROS2/log
