@@ -22,30 +22,48 @@ jobs:
         with:
           required-ros-distributions: jazzy
 
-      - name: Update and Install Dependencies
+      - name: Update and Install System Dependencies
         run: |
           sudo apt-get update -y
           sudo apt-get install -y \
             nlohmann-json3-dev \
             libgeographiclib-dev \
-            libserial-dev
+            libserial-dev \
+            python3-vcstool \
+            python3-colcon-common-extensions
 
-      - name: Build workspace
+      - name: Clone Navigation2 System Tests
+        run: |
+          cd FollowBotAROS2/src
+          git clone --branch main https://github.com/ros-planning/navigation2.git
+          vcs import < navigation2/tools/ros2-navigation2.repos
+        shell: bash
+
+      - name: Install ROS 2 Package Dependencies
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          rosdep update
+          rosdep install --from-paths src --ignore-src -r -y
+        working-directory: FollowBotAROS2
+        shell: bash
+
+      - name: Build Workspace (Project + Nav2 System Tests)
         run: |
           source /opt/ros/jazzy/setup.bash
           colcon build --symlink-install
         working-directory: FollowBotAROS2
         shell: bash
 
-      - name: Test workspace
+      - name: Test Workspace (Project + Nav2 System Tests)
         run: |
           source /opt/ros/jazzy/setup.bash
-          colcon test
+          colcon test --packages-select nav2_system_tests
+          colcon test --packages-select YOUR_PACKAGE_NAME  # Replace this!
           colcon test-result --verbose
         working-directory: FollowBotAROS2
         shell: bash
 
-      - name: Upload test logs on failure
+      - name: Upload Test Logs on Failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
