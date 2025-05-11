@@ -1,4 +1,4 @@
-from launch.actions import IncludeLaunchDescription, LogInfo
+from launch.actions import IncludeLaunchDescription, LogInfo, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 import os
@@ -54,8 +54,8 @@ def generate_launch_description():
         'config',
         'nav2_params.yaml'
     )
-  
 
+  
 
     ld = LaunchDescription([
         # static transform from base_link to base_laser, arguments are based off physical mounting
@@ -82,7 +82,7 @@ def generate_launch_description():
                 os.path.join(
                     get_package_share_directory('ldlidar_sl_ros2'),
                     'launch',
-                    'ld14p.launch.py'  # Path to the specific launch file
+                    'ld14p.launch.py'
                 )
             )
         ),
@@ -104,23 +104,37 @@ def generate_launch_description():
                 'slam_params_file': slam_config_file,
                 'use_sim_time': 'false',
                 'publish_map': 'true'
-            }.items()  # Correctly pass dictionary items
+            }.items()  # pass dictionary items
         ),
 
         
         # launch nav2
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(nav2_launch_path),
-            launch_arguments={
-                'params_file': nav2_params_path,
-                'use_sim_time': 'false',
-                'autostart': 'true' # auto starts nav2 nodes
-            }.items()
+        TimerAction(
+            period=2.0,
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(nav2_launch_path),
+                    launch_arguments={
+                        'params_file': nav2_params_path,
+                        'use_sim_time': 'false',
+                        'autostart': 'true'
+                    }.items()
+                )
+            ]
         ),
+#
+#        IncludeLaunchDescription(
+#            PythonLaunchDescriptionSource(nav2_launch_path),
+#            launch_arguments={
+#                'params_file': nav2_params_path,
+#                'use_sim_time': 'false',
+#                'autostart': 'true' # auto starts nav2 nodes
+#            }.items()
+#        ),
         
         # log that the launch is happening
         LogInfo(
-            msg="SLAM Toolbox, LiDAR have been launched successfully!"
+            msg="successful launch."
         ),
     ])
 

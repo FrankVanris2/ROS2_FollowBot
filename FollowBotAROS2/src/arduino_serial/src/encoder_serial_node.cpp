@@ -1,5 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <nlohmann/json.hpp>
 #include "serial_manager.hpp"
 
@@ -26,7 +27,11 @@ class EncoderSerialNode : public rclcpp::Node {
 		SerialManager::get().open_port("/dev/ttyACM0");
 
 		odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>(
-			"wheel_odom", 10); 
+			"/wheel_odom", 10
+		);
+		joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
+			"/joint_states", 10
+		); 
 
 		timer_ = this->create_wall_timer(
 			std::chrono::milliseconds(100),
@@ -59,14 +64,22 @@ class EncoderSerialNode : public rclcpp::Node {
 
 			double left_velocity  = left_distance / dt;
 			double right_velocity = right_distance / dt;
+
+			// joint states for `robot_state_publisher` to update TF tree with wheel pos
+			sensor_msgs::msg::JointState joint_state_msg;
+			joint_state_msg.header.stamp = current_time;
+			joint_state_msg.name = {"left_wheel_joint", "right_wheel_joint"};
+			joint_state_msg.velocity = {left_velocity, right_velocity};
+			joint_state_pub_->publish(joint_state_msg);
 			
 			double linear_velocity_  = (left_velocity + right_velocity) / 2.0;
 			double angular_velocity_ = (right_velocity - left_velocity) / track_;
 
-			theta_ += angular_velocity_;      // aka delta_theta
+			theta_ += angular_velocity_; // aka delta_theta
 			x_ += linear_velocity_ * cos(theta_);
 			y_ += linear_velocity_ * sin(theta_);
 			
+			// odometry data to used by `robot_localization` for sensor fusion
 			nav_msgs::msg::Odometry odom_msg;
 			odom_msg.header.stamp = current_time;
 			odom_msg.header.frame_id = "odom";
@@ -74,7 +87,6 @@ class EncoderSerialNode : public rclcpp::Node {
 
 			odom_msg.pose.pose.position.x = x_;
 			odom_msg.pose.pose.position.y = y_;
-
 			odom_msg.twist.twist.linear.x  = linear_velocity_;
 			odom_msg.twist.twist.angular.z = angular_velocity_ / dt;
 
@@ -83,7 +95,7 @@ class EncoderSerialNode : public rclcpp::Node {
 			odom_msg.twist.covariance[35] = 0.01; // yaw variance
 
 			odom_publisher_->publish(odom_msg);
-			RCLCPP_INFO(this->get_logger(), "Successfully published data to wheel_odom");
+			RCLCPP_INFO(this->get_logger(), "Successfully published encoder data.");
 		} catch (const std::exception& e) {
 			RCLCPP_ERROR(this->get_logger(), "Encoder error %s", e.what());
 		}
@@ -97,6 +109,7 @@ class EncoderSerialNode : public rclcpp::Node {
 	 double linear_velocity_, angular_velocity_;
 
 	 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
+	 rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
 	 rclcpp::TimerBase::SharedPtr timer_;
 	 rclcpp::Time prev_time_;
 };

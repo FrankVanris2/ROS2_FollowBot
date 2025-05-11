@@ -5,7 +5,7 @@ amcl:
     alpha3: 0.2
     alpha4: 0.2
     alpha5: 0.2
-    base_frame_id: "base_footprint"
+    base_frame_id: "base_link" # originally base_footprint
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
     beam_skip_threshold: 0.3
@@ -95,7 +95,11 @@ controller_server:
       xy_goal_tolerance: 0.25
       yaw_goal_tolerance: 0.25
     FollowPath:
-      plugin: "nav2_mppi_controller::MPPIController"
+      plugin: "nav2_mppi_controller::MPPIController" # nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+      #desired_linear_velocity: 0.5  # test
+      #max_angular_velocity: 1.0     # test
+      #transform_tolerance: 0.1      # test
+      use_approach_linear_velocity_scaling: true # test
       time_steps: 56
       model_dt: 0.05
       batch_size: 2000
@@ -195,11 +199,20 @@ local_costmap:
       height: 3
       resolution: 0.05
       robot_radius: 0.22
-      plugins: ["voxel_layer", "inflation_layer"]
+      plugins: ["voxel_layer", "inflation_layer"] # simplifed voxel_layer to 2D obstacle_layer
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         inflation_radius: 0.70
+      obstacle_layer: # test
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: False
+        observation_sources: scan
+        scan:
+          topic: scan
+          data_type: "LaserScan"
+          marking: true
+          clearing: true
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -241,7 +254,7 @@ global_costmap:
       robot_radius: 0.22
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer","obstacle_layer", "inflation_layer"] # remove obstacle_layer
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -292,8 +305,8 @@ planner_server:
     costmap_update_timeout: 1.0
     GridBased:
       plugin: "nav2_navfn_planner::NavfnPlanner"
-      tolerance: 0.5
-      use_astar: false
+      tolerance: 1.0 # originally 0.5
+      use_astar: true # enabled
       allow_unknown: true
 
 smoother_server:
@@ -393,6 +406,7 @@ collision_monitor:
       min_height: 0.15
       max_height: 2.0
       enabled: True
+
 
 docking_server:
   ros__parameters:

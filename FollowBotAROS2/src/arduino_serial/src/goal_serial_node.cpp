@@ -1,6 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp> // for goal poses
-#include <sensor_msgs/msg/nav_sat_fix.hpp>    // for GPS data
+#include <sensor_msgs/msg/nav_sat_fix.hpp>    // for intial GPS pose
 #include <nlohmann/json.hpp>
 #include "serial_manager.hpp"
 #include <GeographicLib/UTMUPS.hpp>
@@ -33,7 +33,7 @@ class GoalSerialNode : public rclcpp::Node {
 					utm_origin_easting_  = easting0;
 					utm_origin_northing_ = northing0;
 					utm_origin_set_ = true;
-					RCLCPP_INFO(this->get_logger(), "UTM origin set.");
+					RCLCPP_INFO(this->get_logger(), "UTM origin set (Web).");
 				}
 			}
 		);
@@ -68,6 +68,7 @@ class GoalSerialNode : public rclcpp::Node {
 			double utm_y = northing - utm_origin_northing_;
 
 			geometry_msgs::msg::PoseStamped goal_msg;
+//			goal_msg.stamp = this->now();         
 			goal_msg.header.frame_id = "map";
 			goal_msg.pose.position.x = utm_x;
 			goal_msg.pose.position.y = utm_y;

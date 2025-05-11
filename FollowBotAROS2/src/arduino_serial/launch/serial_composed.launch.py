@@ -32,6 +32,12 @@ def generate_launch_description():
                     name='gps_serial_component',
                     parameters=[{'timer_period_ms': 1000}]
                 ),
+                ComposableNode(
+                    package='arduino_serial',
+                    plugin='cmd_velSerialNode',
+                    name='cmd_vel_serialcomponent',
+                    parameters=[{'timer_period_ms': 1000}]
+                ),
             ],
             output='screen',
         )

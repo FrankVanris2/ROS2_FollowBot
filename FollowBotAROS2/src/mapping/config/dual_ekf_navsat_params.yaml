@@ -126,4 +126,4 @@ navsat_transform:
     broadcast_utm_transform: true
     publish_filtered_gps: true
     use_odometry_yaw: true
-    wait_for_datum: true # wait for the first gps/fix to set the origin 
+    wait_for_datum: false # TODO: wait for the first gps/fix to set the origin 

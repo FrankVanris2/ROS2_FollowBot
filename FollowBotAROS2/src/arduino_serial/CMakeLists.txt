@@ -16,7 +16,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(nav_msgs REQUIRED)      # for encoder/odom msg
 find_package(sensor_msgs REQUIRED)   # for imu and gps
-find_package(geometry_msgs REQUIRED) # for PoseStamped msgs
+find_package(geometry_msgs REQUIRED) # for PoseStamped msgs and cmd_vel
 find_package(nlohmann_json REQUIRED)
 
 find_package(PkgConfig REQUIRED)
@@ -69,6 +69,7 @@ ament_target_dependencies(encoder_serial_component
 	rclcpp 
 	rclcpp_components 
 	nav_msgs
+	sensor_msgs
 	nlohmann_json
 )
 target_include_directories(encoder_serial_component PUBLIC src/include)
@@ -95,6 +96,22 @@ rclcpp_components_register_node(
 	EXECUTABLE gps_serial_node_exec
 )
 
+# ====== cmd_vel component ======
+add_library(cmd_vel_serial_component SHARED src/cmd_vel_serial_node.cpp)
+target_link_libraries(cmd_vel_serial_component PkgConfig::LibSerial)
+ament_target_dependencies(cmd_vel_serial_component 
+	rclcpp 
+	rclcpp_components 
+	geometry_msgs
+)
+target_include_directories(cmd_vel_serial_component PUBLIC src/include)
+
+rclcpp_components_register_node(
+	cmd_vel_serial_component
+	PLUGIN "cmd_velSerialNode"
+	EXECUTABLE cmd_vel_serial_node_exec
+)
+
 # ======= goal component ======
 add_library(goal_serial_component SHARED src/goal_serial_node.cpp)
 target_link_libraries(goal_serial_component 
@@ -107,8 +124,7 @@ ament_target_dependencies(goal_serial_component
 	sensor_msgs
 	nlohmann_json
 )
-target_include_directories(goal_serial_component 
-	PUBLIC 
+target_include_directories(goal_serial_component PUBLIC 
 	src/include
 	${GEOLIB_INCLUDE_DIRS}
 )
@@ -118,7 +134,6 @@ rclcpp_components_register_node(
 	PLUGIN "GoalSerialNode"
 	EXECUTABLE goal_serial_node_exec
 )
-
 install(
 	TARGETS serial_manager_component
 			serial_manager_node_exec
@@ -130,6 +145,8 @@ install(
 			gps_serial_node_exec
 			goal_serial_component
 			goal_serial_node_exec
+			cmd_vel_serial_component
+			cmd_vel_serial_node_exec
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin

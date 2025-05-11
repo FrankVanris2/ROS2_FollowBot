@@ -39,13 +39,23 @@ class SerialManager {
 		running_ = true;
 		demux_thread_ = std::thread([this]() {
 			RCLCPP_INFO(rclcpp::get_logger("serial_manager"), 
-				"Demux thread started");
+			"Demux thread started");
 			while (running_) {
 				this->read_and_demux();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}		
 		});
 	 }
+	 
+	 /**
+	  * Sends a string through serial port
+	  */
+	 void write_line(std::string out) {
+		std::lock_guard<std::mutex> lock(port_mutex_);
+		RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "In WriteLine()");
+		port_.Write(out);
+     }
+
 	
 	 /**
 	 * pop one message for each message type

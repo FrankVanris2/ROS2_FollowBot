@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<robot name="followbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Base Footprint (virtual link for ground contact) -->
+  <link name="base_footprint"/>
+
+  <!-- Base Link (main body of the robot) -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.4 0.3 0.2"/> <!-- body size -->
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 0.8 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Joint: Base Footprint to Base Link -->
+  <joint name="base_footprint_to_base_link" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0 0 -0.1" rpy="0 0 0"/> <!-- 0.1m above footprint -->
+  </joint>
+
+  <!-- LiDAR -->
+  <link name="base_scan">
+    <visual>
+      <geometry>
+        <cylinder length="0.05" radius="0.05"/> <!-- simple cylinder -->
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_link_to_lidar" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_scan"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/> <!-- LiDAR mounted 0.2m above base -->
+  </joint>
+
+  <!-- IMU -->
+  <link name="imu_link"/>
+
+  <joint name="base_link_to_imu" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- IMU position relative to base -->
+  </joint>
+
+  <!-- GPS -->
+  <link name="gps_link"/>
+
+  <joint name="base_link_to_gps" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/> <!-- GPS antenna on top -->
+  </joint>
+
+  <!-- ================================== -->
+  <!--         Driven Wheels (Encoders)   -->
+  <!-- ================================== -->
+
+  <!-- Left Wheel -->
+  <link name="left_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/> <!-- wheel dimensions -->
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>d
+    </visual>
+  </link>
+
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0.15 0.2 -0.05" rpy="${pi/2} 0 0"/> <!-- position relative to base -->
+    <axis xyz="0 1 0"/> <!-- rotate around y-axis -->
+  </joint>
+
+  <!-- Right Wheel -->
+  <link name="right_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.05" radius="0.1"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0.15 -0.2 -0.05" rpy="${pi/2} 0 0"/> <!-- mirrored y-position -->
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- ============================ -->
+  <!--  Caster Wheels (no encoder)  -->
+  <!-- ============================ -->
+
+  <!-- Left Caster Wheel -->
+  <link name="left_caster">
+    <visual>
+      <geometry>
+        <sphere radius="0.05"/> <!-- simple sphere for visualization -->
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="left_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_caster"/>
+    <!-- positioned FORWARD on the left side (TODO: adjust x to robot's design) -->
+    <origin xyz="0.15 0.2 -0.05" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right Caster Wheel (passive, no encoder) -->
+  <link name="right_caster">
+    <visual>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="right_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_caster"/>
+    <!-- Positioned FORWARD on the right side -->
+    <origin xyz="0.15 -0.2 -0.05" rpy="0 0 0"/>
+  </joint>
+
+</robot>
+

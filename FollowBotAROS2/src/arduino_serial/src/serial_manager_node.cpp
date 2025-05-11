@@ -10,12 +10,13 @@ class SerialManagerNode : public rclcpp::Node {
 		// auto baud_rate = declare_parameter<int>("baud_rate", 9600);
 
 		SerialManager::get().open_port(port_name);
+		RCLCPP_INFO(get_logger(), 
+			"SerialManager initialized on %s.", port_name.c_str());
 		SerialManager::get().start_demux();
 		RCLCPP_INFO(get_logger(), 
 			"SerialManager initialized on %s.", port_name.c_str());
 	 }
 };
-
 
 #include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(SerialManagerNode)
