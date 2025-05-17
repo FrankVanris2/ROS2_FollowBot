@@ -79,8 +79,22 @@ Tip: you can also place this in the .bashrc file so you don't have to always typ
 ### Important installs that are currently within this project
 * **Necessary package/library installs needed:**
 ```bash
+sudo apt update
 sudo apt install libserial-dev
 ```
+```bash
+sudo apt update
+sudo apt install libbluetooth-dev
+```
+```bash
+sudo apt update
+sudo apt install libgeographiclib-dev
+```
+```bash
+sudo apt update
+sudo apt-get install nlohmann-json3-dev
+```
+
 ### Creating a New Package
 Before creating a new package, ensure you are in the `src` directory of the `FollowBot_AROS2` workspace.
 
