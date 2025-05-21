@@ -47,6 +47,8 @@ class SerialManager {
 		});
 	 }
 	 
+	//TODO: Create a function that basically writes to queue 
+
 	 /**
 	  * Sends a string through serial port
 	  */

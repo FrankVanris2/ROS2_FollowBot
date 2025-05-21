@@ -42,7 +42,7 @@ class cmd_velSerialNode : public rclcpp::Node {
 		js["angular"]["z"] = msg->angular.z;
 		
 		std::string json_str = js.dump(4);
-
+		//TODO: replace get() with add_to_queue	
 		SerialManager::get().write_line(json_str.c_str());
 		RCLCPP_INFO(this->get_logger(), "published json: \n\t%s", json_str.c_str());
 	}
