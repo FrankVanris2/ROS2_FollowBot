@@ -33,11 +33,11 @@ def generate_launch_description():
                     parameters=[{'timer_period_ms': 1000}]
                 ),
                 #ComposableNode(
-                #    package='arduino_serial',
-                #    plugin='GoalSerialNode',
-                #    name='goal_serial_component',
-                #    parameters=[{'timer_period_ms': 500}]
-                #),
+                    package='arduino_serial',
+                    plugin='GoalSerialNode',
+                    name='goal_serial_component',
+                    parameters=[{'timer_period_ms': 500}]
+                ),
                 ComposableNode(
                     package='arduino_serial',
                     plugin='cmd_velSerialNode',

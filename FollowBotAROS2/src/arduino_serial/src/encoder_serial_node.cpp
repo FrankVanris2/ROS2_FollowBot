@@ -58,9 +58,17 @@ class EncoderSerialNode : public rclcpp::Node {
 			auto& data = json_msg->at("data");
 			double left_ticks  = data["left_wheel_ticks"].get<double>();
 			double right_ticks = data["right_wheel_ticks"].get<double>();
+			
+			// convert ticks to angular displacement (radians)
+			double left_delta_angle  = (left_ticks / ticks_per_rev_) * (2 * M_PI);
+			double right_delta_angle = (right_ticks / ticks_per_rev_) * (2 * M_PI);
 
-			double left_distance  = (left_ticks / ticks_per_rev_) * (2 * M_PI * wheel_radius_);
-			double right_distance = (right_ticks / ticks_per_rev_) * (2 * M_PI * wheel_radius_);
+			// update cumulative positions
+			left_pos_  += left_delta_angle;
+			right_pos_ += right_delta_angle;
+
+			double left_distance  = left_delta_angle * wheel_radius_;
+			double right_distance = right_delta_angle * wheel_radius_;
 
 			double left_velocity  = left_distance / dt;
 			double right_velocity = right_distance / dt;
@@ -69,11 +77,12 @@ class EncoderSerialNode : public rclcpp::Node {
 			sensor_msgs::msg::JointState joint_state_msg;
 			joint_state_msg.header.stamp = current_time;
 			joint_state_msg.name = {"left_wheel_joint", "right_wheel_joint"};
+			joint_state_msg.position = {left_pos_, right_pos_};
 			joint_state_msg.velocity = {left_velocity, right_velocity};
 			joint_state_pub_->publish(joint_state_msg);
 			
-			double linear_velocity_  = (left_velocity + right_velocity) / 2.0;
-			double angular_velocity_ = (right_velocity - left_velocity) / track_;
+			linear_velocity_  = (left_velocity + right_velocity) / 2.0;
+			angular_velocity_ = (right_velocity - left_velocity) / track_;
 
 			theta_ += angular_velocity_; // aka delta_theta
 			x_ += linear_velocity_ * cos(theta_);
@@ -106,6 +115,7 @@ class EncoderSerialNode : public rclcpp::Node {
 	 double track_;
 	 
      double x_, y_, theta_;
+	 double left_pos_, right_pos_;
 	 double linear_velocity_, angular_velocity_;
 
 	 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;

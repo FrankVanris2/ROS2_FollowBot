@@ -37,6 +37,8 @@ class GPSSerialNode : public rclcpp::Node {
 			auto& data = json_msg->at("data");
 			double latitude  = data["latitude"].get<double>();
 			double longitude = data["longitude"].get<double>();
+			
+			RCLCPP_INFO(this->get_logger(), "GPS-FollowBot->Received latitude: %f, longitude: %f", latitude, longitude);
 
 			sensor_msgs::msg::NavSatFix gps_msg;
 			gps_msg.header.stamp = this->now();

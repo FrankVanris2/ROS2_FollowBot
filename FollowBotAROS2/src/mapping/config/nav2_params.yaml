@@ -67,6 +67,13 @@ bt_navigator:
 
 controller_server:
   ros__parameters:
+    # test, starting with front-left (x=0.4/2, y=0.3/2)
+    footprint: "[
+      [-0.2, -0.15],
+      [-0.2, 0.15],
+      [0.2, 0.15],
+      [0.2, -0.15]
+    ]"
     controller_frequency: 20.0
     costmap_update_timeout: 0.30
     min_x_velocity_threshold: 0.001
@@ -193,7 +200,10 @@ local_costmap:
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
-      robot_base_frame: base_link
+      robot_base_frame: base_footprint # originally base_link
+
+      footprint: "[[-0.2, -0.15], [-0.2, 0.15], [0.2, 0.15], [0.2, -0.15]]" # test
+
       rolling_window: true
       width: 3
       height: 3
@@ -204,15 +214,6 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         inflation_radius: 0.70
-      obstacle_layer: # test
-        plugin: "nav2_costmap_2d::ObstacleLayer"
-        enabled: False
-        observation_sources: scan
-        scan:
-          topic: scan
-          data_type: "LaserScan"
-          marking: true
-          clearing: true
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -250,11 +251,14 @@ global_costmap:
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
-      robot_base_frame: base_link
+      robot_base_frame: base_footprint # originally base_link
+
+      footprint: "[[-0.2, -0.15], [-0.2, 0.15], [0.2, 0.15], [0.2, -0.15]]" # test
+
       robot_radius: 0.22
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer","obstacle_layer", "inflation_layer"] # remove obstacle_layer
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"] # remove obstacle_layer, static_layer for no map
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -287,7 +291,7 @@ global_costmap:
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
 # If you'd rather set it in the yaml, remove the default "map" value in the tb3_simulation_launch.py
 # file & provide full path to map below. If CLI map configuration or launch default is provided, that will be used.
-# map_server:
+#map_server:
 #   ros__parameters:
 #     yaml_filename: ""
 
@@ -305,7 +309,7 @@ planner_server:
     costmap_update_timeout: 1.0
     GridBased:
       plugin: "nav2_navfn_planner::NavfnPlanner"
-      tolerance: 1.0 # originally 0.5
+      tolerance: 0.5 # originally 0.5
       use_astar: true # enabled
       allow_unknown: true
 
@@ -468,3 +472,12 @@ loopback_simulator:
     map_frame_id: "map"
     scan_frame_id: "base_scan"  # tb4_loopback_simulator.launch.py remaps to 'rplidar_link'
     update_duration: 0.02
+
+lifecycle_manager_navigation:
+  ros__parameters:
+    autostart: true
+    node_names: ['controller_server', 'planner_server', 'behavior_server', 'bt_navigator', 'waypoint_follower']
+    bond_timeout: 4.0
+    attempt_respawn_reconnection: true
+    bond_respawn_max_duration: 10.0
+    service_introspection_mode: "disabled"

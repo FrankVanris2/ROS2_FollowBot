@@ -126,8 +126,12 @@ class SerialManager {
 			} else if (sensor_type == "goal") {
 				std::lock_guard<std::mutex> lock(goal_mutex_);
 				if (goal_q_.size() < MAX_QUEUE_SIZE) {
-					gps_q_.push(std::move(js));
+					goal_q_.push(std::move(js));
 				}
+			} else if (sensor_type == "cmd_vel") {
+				//see what you get back
+				std::lock_guard<std::mutex> lock(cmd_vel_mutex_);
+				RCLCPP_INFO(rclcpp::get_logger("cmd_vel"), "received json: \n\t%s", line.c_str());
             } else {
                 RCLCPP_WARN(rclcpp::get_logger("serial_manager"),
                     "Unknown sensor type: %s", sensor_type.c_str());
@@ -167,4 +171,5 @@ class SerialManager {
 	 // data queues
 	 std::queue<nlohmann::json> imu_q_, enc_q_, gps_q_, goal_q_;
 	 std::mutex imu_mutex_, enc_mutex_, gps_mutex_, goal_mutex_;
+	 std::mutex cmd_vel_mutex_;
 };

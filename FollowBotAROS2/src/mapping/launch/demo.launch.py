@@ -92,7 +92,7 @@ def generate_launch_description():
 
         # delayed `nav2` launch (ensure SLAM is ready)
         TimerAction(
-            period=5.0,
+            period=10.0,
             actions=[
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
