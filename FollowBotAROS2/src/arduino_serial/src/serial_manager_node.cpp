@@ -17,7 +17,6 @@ class SerialManagerNode : public rclcpp::Node {
 			"SerialManager initialized on %s.", port_name.c_str());
 	 }
 
-	 // TODO: run (node is going to launch the thread)
 };
 
 #include <rclcpp_components/register_node_macro.hpp>

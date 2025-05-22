@@ -1,14 +1,18 @@
 #pragma once
 #include <libserial/SerialPort.h>
+#include <libserial/SerialStream.h>
 #include <nlohmann/json.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <iostream>
 #include <thread>
 #include <atomic>
 #include <queue>
 #include <mutex>
 #include <optional>
 #include <string>
+#include <algorithm> // For std::remove_if, std::isspace
+#include <cctype> 	 // For std::isspace
 
 class SerialManager {
  public:
@@ -47,18 +51,29 @@ class SerialManager {
 		});
 	 }
 	 
-	//TODO: Create a function that basically writes to queue 
-
 	 /**
 	  * Sends a string through serial port
 	  */
-	 void write_line(std::string out) {
+	 void write_line(const std::string& line_to_write) {
+		RCLCPP_INFO(rclcpp::get_logger("serial_manager"), 
+					"Attempting to write to serial: %s", line_to_write.c_str()); 
 		std::lock_guard<std::mutex> lock(port_mutex_);
-		RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "In WriteLine()");
-		port_.Write(out);
+		if (port_.IsOpen()) {
+			try {
+				port_.Write(line_to_write);
+				port_.Write("\n"); // Ensure a newline is sent if arduino expects it for each JSON Message
+				RCLCPP_INFO(rclcpp::get_logger("serial_manager"), 
+							"Serial write successful");
+			} catch (const std::exception& e) {
+				RCLCPP_ERROR(rclcpp::get_logger("serial_manager"), 
+							"Serial write error: %s", e.what());
+			}
+		} else {
+			RCLCPP_WARN(rclcpp::get_logger("serial_manager"), 
+						"Serial port not open. Cannot write.");
+		}
      }
 
-	
 	 /**
 	 * pop one message for each message type
 	 * return std::nullopt if queue empty
@@ -92,15 +107,49 @@ class SerialManager {
 		std::lock_guard<std::mutex> lock(port_mutex_);
         if (port_.IsDataAvailable()) {
             port_.ReadLine(out);
+			//RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "Received: %s", out.c_str()); // NEED TO REMOVE
             return true;
         }
         return false;
      }
 
+	 /**
+	 * trim lines to remove leading/trailing whitespace
+	 * If there is whitespace, remove it
+	 * @param line the line to trim
+	 */
+	 std::string trim(const std::string& line) {
+		size_t first = line.find_first_not_of(" \t\n\r");
+		if (std::string::npos == first) {
+			return line; // No non-whitespace characters found.
+		}
+		size_t last = line.find_last_not_of(" \t\n\r");
+		return line.substr(first, (last - first + 1));
+	 }
+
 	 bool read_and_demux() {
 		std::string line;
         if (!read_line(line)) 
 			return false;
+
+		// --- THE CRITICAL STEP: TRIM THE LINE ---
+		std::string trimmed_line = trim(line); // only needed for debugging purposes.
+		
+		// FOR DEBUGGING PURPOSES
+		// Check if error occurs on arduino side for Json Deserialization
+		if (!trimmed_line.empty() && trimmed_line == "JSON_ERROR_ACK") {
+			RCLCPP_INFO(rclcpp::get_logger("serial_manager"), 
+				"Arduino acknowledged JSON error");
+			return true;
+		}
+
+		// FOR DEBUGGING PURPOSES
+		// Check for specific confirmation message first
+		if (!trimmed_line.empty() && trimmed_line == "ARDUINO_CMD_VEL_ACK") {
+			RCLCPP_INFO(rclcpp::get_logger("serial_manager"),
+				"Arduino acknowledged cmd_vel receipt ACKNOWLEDGED");
+			return true; // Successfully handled this line
+		}
 
         // message validation
         if (line.empty() || line.front() != '{') 
