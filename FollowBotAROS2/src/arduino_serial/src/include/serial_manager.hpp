@@ -107,7 +107,7 @@ class SerialManager {
 		std::lock_guard<std::mutex> lock(port_mutex_);
         if (port_.IsDataAvailable()) {
             port_.ReadLine(out);
-			//RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "Received: %s", out.c_str()); // NEED TO REMOVE
+			// RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "Received: %s", out.c_str()); // NEED TO REMOVE
             return true;
         }
         return false;
