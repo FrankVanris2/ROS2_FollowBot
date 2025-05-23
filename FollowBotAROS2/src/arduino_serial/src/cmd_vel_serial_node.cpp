@@ -21,7 +21,7 @@ class cmd_velSerialNode : public rclcpp::Node {
 			"/cmd_vel", 10,
 			std::bind(&cmd_velSerialNode::cmd_velCallback, this, std::placeholders::_1)
 		);
-
+		
 		RCLCPP_INFO(this->get_logger(), "Started cmd_velSerialNode");
 	}
 

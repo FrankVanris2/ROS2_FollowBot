@@ -107,7 +107,7 @@ class SerialManager {
 		std::lock_guard<std::mutex> lock(port_mutex_);
         if (port_.IsDataAvailable()) {
             port_.ReadLine(out);
-			// RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "Received: %s", out.c_str()); // NEED TO REMOVE
+			//RCLCPP_INFO(rclcpp::get_logger("serial_manager"), "Received: %s", out.c_str()); // NEED TO REMOVE
             return true;
         }
         return false;
@@ -145,7 +145,7 @@ class SerialManager {
 
 		// FOR DEBUGGING PURPOSES
 		// Check for specific confirmation message first
-		if (!trimmed_line.empty() && trimmed_line == "ARDUINO_CMD_VEL_ACK") {
+		if (!trimmed_line.empty() && trimmed_line.find("ARDUINO_CMD_VEL_ACK") == 0) {
 			RCLCPP_INFO(rclcpp::get_logger("serial_manager"),
 				"Arduino acknowledged cmd_vel receipt ACKNOWLEDGED");
 			return true; // Successfully handled this line

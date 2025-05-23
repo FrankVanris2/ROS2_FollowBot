@@ -84,10 +84,6 @@ sudo apt install libserial-dev
 ```
 ```bash
 sudo apt update
-sudo apt install libbluetooth-dev
-```
-```bash
-sudo apt update
 sudo apt install libgeographiclib-dev
 ```
 ```bash
