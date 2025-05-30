@@ -28,7 +28,7 @@ class cmd_velSerialNode : public rclcpp::Node {
  private:
 	//TODO: send as JSON
 	void cmd_velCallback(geometry_msgs::msg::Twist::SharedPtr msg) {
-		RCLCPP_INFO(this->get_logger(), "cmd_velCallback: linear.x = %f", msg->linear.x);
+		RCLCPP_INFO(this->get_logger(), "cmd_velCallback: linear.x = %f, angular.z = %f", msg->linear.x, msg->angular.z);
 		nlohmann::json js;
 		
 		js["sensor_type"] = "cmd_vel"; // Add sensor_type field
