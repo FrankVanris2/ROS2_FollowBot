@@ -491,3 +491,8 @@ root directory input this:
 ```bash
  colcon build --packages-select cpp_pubsub
  ```
+
+After building the package it is recommended in the root directory to source the given code in the same directory:
+```
+source install/setup.bash
+```
