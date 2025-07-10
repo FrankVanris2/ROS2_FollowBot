@@ -41,18 +41,13 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libserial-dev
-
-      - name: Install Bluetooth
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install libbluetooth-dev
     
       - name: Move to ROS2 workspace
         run: |
           cd FollowBotAROS2 # Navigate to the correct directory
           ls -la
 
-      - name: Build your workspace
+      - name: Build the workspace
         run: |
           source /opt/ros/jazzy/setup.bash
           colcon build --symlink-install
