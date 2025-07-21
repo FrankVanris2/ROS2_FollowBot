@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/jazzy/include/**",
+        "/home/ubuntu/myProjects/ROS2_FollowBot/FollowBotAROS2/src/arduino_serial/include/**",
+        "/home/ubuntu/myProjects/ROS2_FollowBot/FollowBotAROS2/src/ldlidar_sl_ros2/include/**",
+        "/home/ubuntu/myProjects/ROS2_FollowBot/FollowBotAROS2/src/mapping/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-arm64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
