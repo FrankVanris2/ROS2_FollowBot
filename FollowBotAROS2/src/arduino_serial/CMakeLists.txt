@@ -14,6 +14,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(nav2_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)      # for encoder/odom msg
 find_package(sensor_msgs REQUIRED)   # for imu and gps
 find_package(geometry_msgs REQUIRED) # for PoseStamped msgs and cmd_vel
@@ -134,6 +136,22 @@ rclcpp_components_register_node(
 	PLUGIN "GoalSerialNode"
 	EXECUTABLE goal_serial_node_exec
 )
+
+# FollowBotClientNode EXECUTABLE
+add_executable(follow_path_client_node src/follow_path_client_node.cpp)
+# Target dependencies for action client
+ament_target_dependencies(follow_path_client_node
+	rclcpp
+	rclcpp_action
+	nav2_msgs
+	nav_msgs
+	geometry_msgs
+)
+# Install the EXECUTABLE
+install(TARGETS follow_path_client_node
+	DESTINATION lib/${PROJECT_NAME}
+)
+
 install(
 	TARGETS serial_manager_component
 			serial_manager_node_exec
@@ -160,6 +178,8 @@ install(
 ament_export_dependencies(
 	rclcpp 
 	rclcpp_components
+	rclcpp_action
+	nav2_msgs
 	nav_msgs
 	sensor_msgs
 	geometry_msgs

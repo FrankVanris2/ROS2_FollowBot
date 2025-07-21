@@ -8,7 +8,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <nav2_msgs/action/follow_path.hpp>
-#include <mav_msgs/msg/path.hpp>
+#include <nav_msgs/msg/path.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <chrono>
 #include <thread>
@@ -55,8 +55,8 @@ public:
         auto goal_msg = FollowPath::Goal();
         goal_msg.path = path;
 
-        goal_msg.controller_id = "FollowPath";
-        goal_msg.smoother_id = "SimpleSmoother";
+        // REMOVED: goal_msg.controller_id = "FollowPath"; NECESSARY FOR OLDER VERSIONS OF ROS2
+        // REMOVED: goal_msg.smoother_id = "SimpleSmoother"; NECESSARY FOR OLDER VERSIONS OF ROS2
 
         RCLCPP_INFO(this->get_logger(), "Sending FollowPath goal with %zu poses...", goal_msg.path.poses.size());
 
@@ -84,7 +84,7 @@ private:
         if (!goal_handle) {
             RCLCPP_ERROR(this->get_logger(), "Goal was rejected by action server.");
         } else {
-            RCLCPP_INFO(this->get_logger(), "Goal accepted by server. Goal ID: %s", goal_handle->get_goal_id().uuid.str().c_str());
+            RCLCPP_INFO(this->get_logger(), "Goal accepted by server. Goal ID: %s", rclcpp_action::to_string(goal_handle->get_goal_id()).c_str());
         }
     }
 
@@ -94,9 +94,12 @@ private:
     void feedback_callback(
         GoalHandleFollowPath::SharedPtr,
         const std::shared_ptr<const FollowPath::Feedback> feedback) {
-        RCLCPP_INFO(this->get_logger(), "Received feedback: Current pose (x,y): (%.2f, %.2f)",
-            feedback->current_pose.pose.position.x,
-            feedback->current_pose.pose.position.y);
+        (void)feedback; // Suppress unused variable warning
+        // REMOVED: access to feedback->current_pose is usually empty in later versions of ROS2
+        // RCLCPP_INFO(this->get_logger(), "Received feedback: Current pose (x,y): (%.2f, %.2f)",
+        //     feedback->current_pose.pose.position.x,
+        //     feedback->current_pose.pose.position.y);
+        RCLCPP_INFO(this->get_logger(), "Received empty feedback (FollowPath action feedback usually has no fields)");
     }
 
     /// @brief Callback for result.
