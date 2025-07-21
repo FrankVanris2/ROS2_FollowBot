@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch_ros.actions import ComposableNodeContainer
+from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
 
 def generate_launch_description():
@@ -47,4 +47,15 @@ def generate_launch_description():
             ],
             output='screen',
         )
-    return LaunchDescription([container])
+    
+        # NEW: Added the FollowPathActionClientNode as a Regular ROS2 Node
+        follow_path_client_node = Node(
+            package='arduino_serial',
+            executable='follow_path_client_node',
+            name='follow_path_client',
+            output='screen',
+        )
+    return LaunchDescription([
+        container,
+        follow_path_client_node
+        ])
